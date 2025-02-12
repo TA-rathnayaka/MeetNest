@@ -4,6 +4,16 @@ import tkinter as tk
 import socket
 import threading
 import re
+from ui import create_ui
+
+
+
+LOCAL_IP_PORT = 9999
+AUDIO_RECEIVER_PORT = 8888
+CAMERA_STREAM_PORT = 7777
+SCREEN_STREAM_PORT = 7777
+AUDIO_STREAM_PORT = 6666
+LOCAL_INTERFACE = '127.0.0.1'
 
 # Function to validate the entered IP address
 def is_valid_ip(ip):
@@ -34,8 +44,8 @@ local_ip_address = get_local_ip()
 
 
 # Create server and receiver instances
-server = StreamingServer(local_ip_address, 9999) 
-receiver = AudioReceiver(local_ip_address, 8888)
+server = StreamingServer(local_ip_address, LOCAL_IP_PORT) 
+receiver = AudioReceiver(local_ip_address, AUDIO_RECEIVER_PORT)
 
 # Function to start the listening process
 def start_listening():
@@ -48,7 +58,7 @@ def start_listening():
 def start_camera_stream():
     target_ip = text_target_ip.get()
     if is_valid_ip(target_ip):
-        camera_client = CameraClient(target_ip, 7777)
+        camera_client = CameraClient(target_ip, CAMERA_STREAM_PORT)
         t3 = threading.Thread(target=camera_client.start_stream)
         t3.start()
     else:
@@ -58,7 +68,7 @@ def start_camera_stream():
 def start_screen_sharing():
     target_ip = text_target_ip.get()
     if is_valid_ip(target_ip):
-        screen_client = ScreenShareClient(target_ip, 7777)
+        screen_client = ScreenShareClient(target_ip, SCREEN_STREAM_PORT)
         t4 = threading.Thread(target=screen_client.start_stream)
         t4.start()
     else:
@@ -68,33 +78,13 @@ def start_screen_sharing():
 def start_audio_stream():
     target_ip = text_target_ip.get()
     if is_valid_ip(target_ip):
-        audio_client = AudioSender(target_ip, 6666)
+        audio_client = AudioSender(target_ip, AUDIO_STREAM_PORT)
         t5 = threading.Thread(target=audio_client.start_stream)
         t5.start()
     else:
         print("Invalid IP Address")
 
-# GUI setup
-window = tk.Tk()
-window.title("MeetNest")
-window.geometry("300x200")
 
-label_target_ip = tk.Label(window, text="Target IP:") 
-label_target_ip.pack()
 
-text_target_ip = tk.Entry(window, width=30)
-text_target_ip.pack()
-
-btn_listen = tk.Button(window, text="Start Listening", width=50, command=start_listening)
-btn_listen.pack(anchor=tk.CENTER, expand=True)  
-
-btn_camera = tk.Button(window, text="Start Camera Stream", width=50, command=start_camera_stream)
-btn_camera.pack(anchor=tk.CENTER, expand=True)  
-
-btn_screen = tk.Button(window, text="Start Screen Sharing", width=50, command=start_screen_sharing)
-btn_screen.pack(anchor=tk.CENTER, expand=True)
-
-btn_audio = tk.Button(window, text="Start Audio Stream", width=50, command=start_audio_stream)
-btn_audio.pack(anchor=tk.CENTER, expand=True)  
-
+window, text_target_ip = create_ui(start_listening, start_camera_stream, start_screen_sharing, start_audio_stream, local_ip_address)
 window.mainloop()
