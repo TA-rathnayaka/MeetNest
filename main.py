@@ -10,20 +10,28 @@ def is_valid_ip(ip):
     regex = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
     return re.match(regex, ip) is not None
 
+
 def get_local_ip():
-    # Use netifaces to fetch the local IP address of the default network interface
     interfaces = netifaces.interfaces()
+    
     for interface in interfaces:
         # Check if the interface has an 'inet' (IPv4) address
         if netifaces.AF_INET in netifaces.ifaddresses(interface):
             ip_info = netifaces.ifaddresses(interface)[netifaces.AF_INET]
+            
             for addr in ip_info:
-                # If an IP address exists, return it
-                return addr['addr']
-    return '127.0.0.1'  # Fallback to localhost if no IP address is found
+                ip_address = addr['addr']
+                
+                # Make sure the IP address is not the loopback address (127.0.0.1)
+                if ip_address != '127.0.0.1':
+                    return ip_address
+                
+    return '127.0.0.1'
 
+# Test the function
+print("Local IP Address:", get_local_ip())
 local_ip_address = get_local_ip()
-print("Local IP Address:", local_ip_address)
+
 
 # Create server and receiver instances
 server = StreamingServer(local_ip_address, 9999) 
