@@ -22,21 +22,15 @@ def is_valid_ip(ip):
 
 
 def get_local_ip():
-    interfaces = netifaces.interfaces()
-    
-    for interface in interfaces:
-        # Check if the interface has an 'inet' (IPv4) address
-        if netifaces.AF_INET in netifaces.ifaddresses(interface):
-            ip_info = netifaces.ifaddresses(interface)[netifaces.AF_INET]
-            
-            for addr in ip_info:
-                ip_address = addr['addr']
-                
-                # Make sure the IP address is not the loopback address (127.0.0.1)
-                if ip_address != '127.0.0.1':
-                    return ip_address
-                
-    return '127.0.0.1'
+    try:
+        # Create a temporary socket and connect to an external server
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))  # Google's public DNS
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
+    except Exception as e:
+        return f"Error: {e}"
 
 # Test the function
 print("Local IP Address:", get_local_ip())
