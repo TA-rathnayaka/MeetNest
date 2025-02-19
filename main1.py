@@ -14,7 +14,7 @@ SCREEN_STREAM_PORT = 9999
 AUDIO_STREAM_PORT = 8888
 LOCAL_INTERFACE = '127.0.0.1'
 
-## Function to validate the entered IP address
+# Function to validate the entered IP address
 def is_valid_ip(ip):
     regex = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
     return re.match(regex, ip) is not None
